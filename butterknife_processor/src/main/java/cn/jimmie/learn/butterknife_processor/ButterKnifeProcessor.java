@@ -31,11 +31,15 @@ import javax.tools.Diagnostic;
 import cn.jimmie.learn.butterknife_annotations.BindView;
 import cn.jimmie.learn.butterknife_annotations.OnClick;
 
+// 使用@AutoService注解,避免了在resource文件夹中注册的步骤
 @AutoService(Processor.class)
 public class ButterKnifeProcessor extends AbstractProcessor {
     private Filer filer;
     private Messager messager;
 
+    /**
+     * 初始化, 获取各种工具类
+     */
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
@@ -43,6 +47,9 @@ public class ButterKnifeProcessor extends AbstractProcessor {
         messager = processingEnv.getMessager();
     }
 
+    /**
+     * 注册感兴趣的注解类
+     */
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new LinkedHashSet<>();
@@ -51,11 +58,17 @@ public class ButterKnifeProcessor extends AbstractProcessor {
         return annotations;
     }
 
+    /**
+     * 返回使用的java版本
+     */
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_8;
+        return SourceVersion.latestSupported();
     }
 
+    /**
+     * 扫描、评估和处理注解，以及生成Java文件的逻辑代码
+     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         return handleProcess(annotations, roundEnv);
@@ -156,6 +169,7 @@ public class ButterKnifeProcessor extends AbstractProcessor {
 
             // 获取注解上的值(这里是R.id对应的int值)
             int value = element.getAnnotation(BindView.class).value();
+            BindView bindView = element.getAnnotation(BindView.class);
             // 获取字段的类型
             ClassName fieldClass = (ClassName) ClassName.get(element.asType());
 

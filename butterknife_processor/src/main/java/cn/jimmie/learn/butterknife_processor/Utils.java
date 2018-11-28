@@ -13,8 +13,11 @@ import javax.lang.model.type.TypeMirror;
  * Created by jimmie.qian on 2018/11/28.
  */
 public class Utils {
+    /**
+     * 递归向上查找 是否是其对应的子类型
+     */
     static boolean isSubtypeOfType(TypeMirror typeMirror, String otherType) {
-        if (isTypeEqual(typeMirror, otherType)) {
+        if (otherType.equals(typeMirror.toString())) {
             return true;
         }
         if (typeMirror.getKind() != TypeKind.DECLARED) {
@@ -51,9 +54,5 @@ public class Utils {
             }
         }
         return false;
-    }
-
-    private static boolean isTypeEqual(TypeMirror typeMirror, String otherType) {
-        return otherType.equals(typeMirror.toString());
     }
 }

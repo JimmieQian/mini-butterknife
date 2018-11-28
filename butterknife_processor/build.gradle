@@ -1,0 +1,14 @@
+apply plugin: 'java-library'
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.google.auto.service/auto-service
+    implementation group: 'com.google.auto.service', name: 'auto-service', version: '1.0-rc4'
+    implementation project(':butterknife_annotations')
+    implementation 'com.squareup:javapoet:1.11.1'
+    implementation 'com.google.guava:guava:24.0-jre'
+    implementation 'com.google.auto:auto-common:0.10'
+    compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

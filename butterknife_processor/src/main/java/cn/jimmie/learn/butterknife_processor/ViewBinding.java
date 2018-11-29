@@ -99,8 +99,8 @@ class ViewBinding {
     private void brewOnlyField(FieldBinding field, MethodSpec.Builder ctorBuilder, MethodSpec.Builder unbind) {
         ClassName fieldType = field.getFieldType();
         ctorBuilder.addStatement("target.$L = $T.findRequiredViewAsType(source, $L, \"field '$L'\", $T.class)",
-                field.getName(), UTILS, field.getValue(), field.getName(), fieldType);
-        unbind.addStatement("target.$L = null", field.getName());
+                field.getFieldName(), UTILS, field.getValue(), field.getFieldName(), fieldType);
+        unbind.addStatement("target.$L = null", field.getFieldName());
     }
 
     private void brewOnlyMethod(MethodBinding method, MethodSpec.Builder ctorBuilder, TypeSpec.Builder clsBuilder, MethodSpec.Builder unbind) {
@@ -122,17 +122,18 @@ class ViewBinding {
 
     private void brewFieldMethod(FieldBinding field, MethodBinding method, MethodSpec.Builder ctorBuilder, MethodSpec.Builder unbind) {
         ClassName fieldType = field.getFieldType();
-        ctorBuilder.addStatement("target.$L = $T.findRequiredViewAsType(source, $L, \"field '$L'\", $T.class)",
-                field.getName(), UTILS, field.getValue(), field.getName(), fieldType);
-
         String methodName = method.getMethodName();
+
+        ctorBuilder.addStatement("target.$L = $T.findRequiredViewAsType(source, $L, \"field '$L' and method '$L'\", $T.class)",
+                field.getFieldName(), UTILS, field.getValue(), field.getFieldName(), methodName, fieldType);
+
         TypeSpec anonymous = brewAnonymousClass(methodName, method.hasParam());
 
         // target.view.setOnClickListener(new DebouncingOnClickListener() {
-        ctorBuilder.addStatement("target.$L.setOnClickListener($L)", field.getName(), anonymous);
+        ctorBuilder.addStatement("target.$L.setOnClickListener($L)", field.getFieldName(), anonymous);
 
-        unbind.addStatement("target.$L.setOnClickListener(null)", field.getName());
-        unbind.addStatement("target.$L = null", field.getName());
+        unbind.addStatement("target.$L.setOnClickListener(null)", field.getFieldName());
+        unbind.addStatement("target.$L = null", field.getFieldName());
     }
 
     private TypeSpec brewAnonymousClass(String name, boolean hasParam) {
@@ -177,5 +178,4 @@ class ViewBinding {
         }
         return list;
     }
-
 }

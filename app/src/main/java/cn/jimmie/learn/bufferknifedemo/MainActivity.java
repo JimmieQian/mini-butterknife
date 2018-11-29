@@ -15,24 +15,20 @@ import cn.jimmie.learn.butterknife_annotations.OnClick;
 
 
 public class MainActivity extends AppCompatActivity {
-
-    //    @BindView(R.id.btn)
-//    Button button;
+    // 解绑器
+    private Unbinder unbinder;
 
     @BindView(R.id.btn2)
     Button btn2;
-
     @BindView(R.id.btn)
     Button button;
 
     int id = 0;
 
     @OnClick({R.id.btn, R.id.btn2})
-    void clickMethod(View view) {
+    void click(View view) {
         Toast.makeText(this, "i am a toast !!", Toast.LENGTH_SHORT).show();
     }
-
-    private Unbinder unbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +42,14 @@ public class MainActivity extends AppCompatActivity {
             button.setText("i'm button " + (++id));
             btn2.setText("xxx button " + (++id));
         });
+        // 绑定
         unbinder = ButterKnife.bind(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // 解绑, 移除监听器等
         if (unbinder != null) unbinder.unbind();
     }
 }

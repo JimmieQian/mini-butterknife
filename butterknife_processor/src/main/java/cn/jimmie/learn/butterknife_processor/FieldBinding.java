@@ -9,12 +9,12 @@ import com.squareup.javapoet.ClassName;
 public class FieldBinding {
     private int value;
     private ClassName fieldType;
-    private String name;
+    private String fieldName;
 
     public FieldBinding(int value, ClassName fieldType, String name) {
         this.value = value;
         this.fieldType = fieldType;
-        this.name = name;
+        this.fieldName = name;
     }
 
     public int getValue() {
@@ -25,7 +25,7 @@ public class FieldBinding {
         return fieldType;
     }
 
-    public String getName() {
-        return name;
+    public String getFieldName() {
+        return fieldName;
     }
 }

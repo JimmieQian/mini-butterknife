@@ -1,4 +1,4 @@
-package cn.jimmie.learn.butterknife_processor;
+package cn.jimmie.learn.bufferknifedemo.test;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

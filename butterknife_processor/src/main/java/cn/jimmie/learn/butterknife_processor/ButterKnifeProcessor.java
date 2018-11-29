@@ -14,7 +14,6 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -22,11 +21,8 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
 
 import cn.jimmie.learn.butterknife_annotations.BindView;
 import cn.jimmie.learn.butterknife_annotations.OnClick;
@@ -35,7 +31,6 @@ import cn.jimmie.learn.butterknife_annotations.OnClick;
 @AutoService(Processor.class)
 public class ButterKnifeProcessor extends AbstractProcessor {
     private Filer filer;
-    private Messager messager;
 
     /**
      * 初始化, 获取各种工具类
@@ -44,7 +39,6 @@ public class ButterKnifeProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         filer = processingEnv.getFiler();
-        messager = processingEnv.getMessager();
     }
 
     /**
@@ -71,83 +65,9 @@ public class ButterKnifeProcessor extends AbstractProcessor {
      */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        return handleProcess(annotations, roundEnv);
-    }
-
-    void testMethodElement(Element element) {
-        /** ===== 方法篇 ===== */
-        // 判断Element是否注解在字段上
-        if (!(element instanceof ExecutableElement) || element.getKind() != ElementKind.METHOD) {
-            throw new IllegalStateException("@BindView annotation must be on a field.");
-        }
-
-        ExecutableElement executableElement = (ExecutableElement) element;
-
-        // 获取方法名
-        Name methodName = element.getSimpleName();
-
-        // 获取返回值
-        TypeMirror returnType = executableElement.getReturnType();
-        TypeName returnClass = TypeName.get(returnType);
-
-        List<? extends VariableElement> parameters = executableElement.getParameters();
-        // 传入参数的个数
-        int parameterSize = parameters.size();
-        for (VariableElement parameter : parameters) {
-            TypeMirror paramType = parameter.asType();
-            // 参数类型
-            TypeName paramClass = TypeName.get(paramType);
-            // 参数名
-            Name paramName = parameter.getSimpleName();
-            messager.printMessage(Diagnostic.Kind.NOTE, "paramName = " + paramName);
-            messager.printMessage(Diagnostic.Kind.NOTE, "paramClass = " + paramClass);
-        }
-
-        messager.printMessage(Diagnostic.Kind.NOTE, "parameterSize = " + parameterSize);
-        messager.printMessage(Diagnostic.Kind.NOTE, "methodName = " + methodName);
-        messager.printMessage(Diagnostic.Kind.NOTE, "returnName = " + returnClass);
-    }
-
-    void testFieldElement(Element element) {
-        messager.printMessage(Diagnostic.Kind.NOTE, "=======================================");
-
-        /** ===== 字段篇 ===== */
-        // 判断Element是否注解在字段上
-        if (!(element instanceof VariableElement) || element.getKind() != ElementKind.FIELD) {
-            throw new IllegalStateException("@BindView annotation must be on a method.");
-        }
-
-        TypeElement enclosing = (TypeElement) element.getEnclosingElement();
-
-        // 注解绑定的类名
-        Name bindingClassName = enclosing.getQualifiedName();
-
-        // 可以根据 javapoet 中的 TypeName 来确定类型
-        TypeMirror mirror = element.asType();
-        TypeName typeName = TypeName.get(mirror);
-
-        // 字段的名称
-        Name fieldName = element.getSimpleName();
-
-        // 获取字段上的值(final类型)
-        VariableElement variable = (VariableElement) element;
-        Object fieldValue = variable.getConstantValue();
-
-        // 获取注解类以及它的值
-        BindView bindView = element.getAnnotation(BindView.class);
-        int bindValue = bindView.value();
-
-        messager.printMessage(Diagnostic.Kind.NOTE, "bindingClassName = " + bindingClassName.toString());
-        messager.printMessage(Diagnostic.Kind.NOTE, "fieldType = " + typeName.toString());
-        messager.printMessage(Diagnostic.Kind.NOTE, "fieldName = " + fieldName);
-        messager.printMessage(Diagnostic.Kind.NOTE, "fieldValue = " + fieldValue);
-        messager.printMessage(Diagnostic.Kind.NOTE, "bindValue = " + bindValue);
-    }
-
-    private boolean handleProcess(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         boolean shouldWrite = false;
+        //每一个 Activity 对应一个 ViewBinding
         Map<String, ViewBinding> bindingMap = new HashMap<>();
-
 
         // 绑定ViewId 遍历所有被注解了@BindView的元素
         for (Element element : roundEnv.getElementsAnnotatedWith(BindView.class)) {
@@ -169,7 +89,6 @@ public class ButterKnifeProcessor extends AbstractProcessor {
 
             // 获取注解上的值(这里是R.id对应的int值)
             int value = element.getAnnotation(BindView.class).value();
-            BindView bindView = element.getAnnotation(BindView.class);
             // 获取字段的类型
             ClassName fieldClass = (ClassName) ClassName.get(element.asType());
 
@@ -198,7 +117,6 @@ public class ButterKnifeProcessor extends AbstractProcessor {
 
             ExecutableElement executableElement = (ExecutableElement) element;
             TypeElement typeElement = (TypeElement) element.getEnclosingElement();
-
 
             // 获取目标类的类型 如(xxx.MainActivity)
             String targetName = typeElement.getQualifiedName().toString();
